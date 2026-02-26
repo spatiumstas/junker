@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Amnezia Junk Generator</title>
+  <link rel="icon" type="image/png" href="https://img.icons8.com/nolan/96/recycle-bin.png">
+  <link rel="apple-touch-icon" href="https://img.icons8.com/nolan/96/recycle-bin.png">
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    html::-webkit-scrollbar {
+      display: none;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 24px;
+    }
+
+    .card {
+      max-width: 780px;
+      margin: 0 auto;
+      background: #1f2937;
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+    }
+
+    .hint {
+      color: #9ca3af;
+      font-size: 13px;
+      margin: 0 0 16px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #111827;
+      color: #e5e7eb;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: #111827;
+    }
+
+    .btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: #1d4ed8;
+      transform: scale(1.05);
+    }
+
+    .btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .send-icon {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255, 255, 255, 0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .results-container {
+      margin-top: 16px;
+      display: none;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    .results-container.visible {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .result-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 8px;
+      animation: slideIn 0.2s ease-out backwards;
+    }
+
+    .result-row:nth-child(1) { animation-delay: 0.05s; }
+    .result-row:nth-child(2) { animation-delay: 0.1s; }
+    .result-row:nth-child(3) { animation-delay: 0.15s; }
+    .result-row:nth-child(4) { animation-delay: 0.2s; }
+    .result-row:nth-child(5) { animation-delay: 0.25s; }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .result-label {
+      width: 30px;
+      font-size: 13px;
+      color: #9ca3af;
+      flex-shrink: 0;
+    }
+
+    .result-field {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #0b1220;
+      color: #a3e635;
+      font-size: 13px;
+      font-family: monospace;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-copy-small {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: #374151;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .btn-copy-small:hover {
+      background: #4b5563;
+      color: #e5e7eb;
+      transform: scale(1.05);
+    }
+
+    .btn-copy-small.ok {
+      background: #16a34a;
+      color: #fff;
+    }
+
+    .copy-icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .error-box {
+      margin-top: 16px;
+      background: #450a0a;
+      border: 1px solid #7f1d1d;
+      border-radius: 8px;
+      padding: 14px;
+      color: #fca5a5;
+      display: none;
+    }
+
+    .error-box.visible {
+      display: block;
+    }
+
+    .info-box {
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid;
+      border-radius: 8px;
+      font-size: 13px;
+      display: none;
+    }
+
+    .info-box.visible {
+      display: block;
+    }
+
+    .info-box--primary {
+      background: #1e3a5f;
+      border-color: #3b82f6;
+      color: #93c5fd;
+    }
+
+    .info-box--warn {
+      background: #78350f;
+      border-color: #fbbf24;
+      color: #fef3c7;
+    }
+
+    footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    footer a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <h2>Amnezia Signature Generator</h2>
+  <p class="hint">Generate real I1–I5</p>
+  <div class="row">
+    <input id="domain" placeholder="example.com" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" inputmode="url" autofocus/>
+    <button id="run" class="btn" title="Get">
+      <svg class="send-icon" viewBox="0 0 24 24">
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+        <polyline points="12 5 19 12 12 19"></polyline>
+      </svg>
+    </button>
+  </div>
+
+  <div id="results" class="results-container">
+    <div class="result-row">
+      <span class="result-label">I1</span>
+      <div id="field1" class="result-field"></div>
+      <button class="btn-copy-small" data-index="1" title="Copy">
+        <svg class="copy-icon" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="result-row">
+      <span class="result-label">I2</span>
+      <div id="field2" class="result-field"></div>
+      <button class="btn-copy-small" data-index="2" title="Copy">
+        <svg class="copy-icon" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="result-row">
+      <span class="result-label">I3</span>
+      <div id="field3" class="result-field"></div>
+      <button class="btn-copy-small" data-index="3" title="Copy">
+        <svg class="copy-icon" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="result-row">
+      <span class="result-label">I4</span>
+      <div id="field4" class="result-field"></div>
+      <button class="btn-copy-small" data-index="4" title="Copy">
+        <svg class="copy-icon" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="result-row">
+      <span class="result-label">I5</span>
+      <div id="field5" class="result-field"></div>
+      <button class="btn-copy-small" data-index="5" title="Copy">
+        <svg class="copy-icon" viewBox="0 0 24 24">
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+          <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="error" class="error-box"></div>
+  <div id="info" class="info-box"></div>
+</div>
+
+<footer>
+  Powered by real QUIC packet capture •
+  <a href="https://github.com/spatiumstas/junker" target="_blank">GitHub</a>
+</footer>
+
+<script>
+  const API_BASE_URL = 'https://junk.web2core.workers.dev';
+
+  const SVG_ICONS = {
+    copy: '<svg class="copy-icon" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>',
+    check: '<svg class="copy-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+    send: '<svg class="send-icon" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>'
+  };
+
+  const domainEl = document.getElementById('domain');
+  const runBtn = document.getElementById('run');
+  const resultsEl = document.getElementById('results');
+  const errorEl = document.getElementById('error');
+  const infoEl = document.getElementById('info');
+
+  function showInfo(messageHtml, variant) {
+    infoEl.innerHTML = messageHtml;
+    infoEl.className = `info-box visible ${variant === 'warn' ? 'info-box--warn' : 'info-box--primary'}`;
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '')
+      .replaceAll('&', '&amp;')
+      .replaceAll('<', '&lt;')
+      .replaceAll('>', '&gt;')
+      .replaceAll('"', '&quot;')
+      .replaceAll("'", '&#39;');
+  }
+
+  async function run() {
+    const domain = domainEl.value.trim();
+    if (!domain) return;
+
+    runBtn.disabled = true;
+    runBtn.innerHTML = '<div class="spinner"></div>';
+    resultsEl.classList.remove('visible');
+    errorEl.classList.remove('visible');
+    infoEl.className = 'info-box';
+
+    try {
+      const res = await fetch(API_BASE_URL + '/signature?domain=' + encodeURIComponent(domain));
+      const data = await res.json();
+
+      if (!data.ok) {
+        errorEl.textContent = data.error || 'Unknown error';
+        errorEl.classList.add('visible');
+        return;
+      }
+
+      for (let i = 1; i <= 5; i++) {
+        const field = document.getElementById('field' + i);
+        if (data['i' + i]) {
+          field.textContent = data['i' + i];
+          field.parentElement.style.display = 'flex';
+        } else {
+          field.textContent = '';
+          field.parentElement.style.display = 'none';
+        }
+      }
+
+      if (data.status && data.status.title && data.status.message) {
+        const icon = escapeHtml(data.status.icon || 'ℹ️');
+        const title = escapeHtml(data.status.title);
+        const message = escapeHtml(data.status.message);
+        const variant = data.status.variant === 'warn' ? 'warn' : 'primary';
+        const statusText = `${icon} <strong>${title}:</strong> ${message}`;
+        if (data.warning) {
+          showInfo(`${statusText}<br>⚠️ ${escapeHtml(data.warning)}`, 'warn');
+        } else {
+          showInfo(statusText, variant);
+        }
+      }
+
+      resultsEl.classList.add('visible');
+    } catch (err) {
+      errorEl.textContent = 'Network error: Maybe blocked access to CloudFlare.';
+      errorEl.classList.add('visible');
+    } finally {
+      runBtn.disabled = false;
+      runBtn.innerHTML = SVG_ICONS.send;
+    }
+  }
+
+  document.querySelectorAll('.btn-copy-small').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const index = this.getAttribute('data-index');
+      const field = document.getElementById('field' + index);
+      const text = field.textContent;
+      
+      navigator.clipboard.writeText(text).then(() => {
+        this.innerHTML = SVG_ICONS.check;
+        this.classList.add('ok');
+        setTimeout(() => {
+          this.innerHTML = SVG_ICONS.copy;
+          this.classList.remove('ok');
+        }, 2000);
+      }).catch(() => {
+        console.error('Failed to copy');
+      });
+    });
+  });
+
+  runBtn.addEventListener('click', run);
+  domainEl.addEventListener('keydown', e => {
+    if (e.key === 'Enter') run();
+  });
+</script>
+</body>
+</html>
